@@ -4,7 +4,1009 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SmartPOS - Demo Interactivo</title>
-    <link rel="stylesheet" href="styles.css?v=1.1">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .demo-container {
+            display: grid;
+            grid-template-columns: 350px 1fr 350px;
+            gap: 20px;
+            margin-bottom: 30px;
+            min-height: 600px;
+        }
+
+        .control-panel, .device-simulator, .results-panel {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .control-panel h2, .device-simulator h2, .results-panel h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .control-group select, .control-group input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .control-group select:focus, .control-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .send-order-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 20px;
+        }
+
+        .send-order-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .device-screen {
+            background: linear-gradient(145deg, #f5f5f5, #e8e8e8);
+            border-radius: 20px;
+            padding: 0;
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+            border: 3px solid #ddd;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .device-status {
+            background: #ffd700;
+            color: #333;
+            padding: 8px 15px;
+            font-size: 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .status-indicator.active {
+            background: #28a745;
+            color: white;
+        }
+
+        .status-indicator.sleep {
+            background: #6c757d;
+            color: white;
+        }
+
+        .device-content {
+            background: #f8f9fa;
+            height: 450px;
+            color: #333;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .result-display {
+            min-height: 200px;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .waiting-state {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            color: #6c757d;
+            font-size: 18px;
+        }
+
+        .result-success {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result-manual {
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+            border: 2px solid #ffc107;
+            color: #856404;
+        }
+
+        .result-busy {
+            background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .result-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .result-description {
+            font-size: 1.1em;
+            line-height: 1.5;
+        }
+
+        .activity-log {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .activity-log h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .log-container {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #e9ecef;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-entry.success {
+            color: #28a745;
+        }
+
+        .log-entry.warning {
+            color: #ffc107;
+        }
+
+        .log-entry.error {
+            color: #dc3545;
+        }
+
+        @media (max-width: 1200px) {
+            .demo-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .device-screen {
+                min-height: 400px;
+            }
+            
+            .device-content {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            header h1 {
+                font-size: 2em;
+            }
+            
+            .device-screen {
+                min-height: 300px;
+            }
+            
+            .device-content {
+                height: 250px;
+            }
+            
+            .control-panel, .device-simulator, .results-panel {
+                padding: 15px;
+            }
+        }
+
+        /* Estilos específicos del SmartPOS */
+        .calculator-screen {
+            background: #f8f9fa;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calculator-header {
+            background: white;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: #666;
+            font-size: 16px;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+        }
+
+        .tab-button.active {
+            color: #007bff;
+            border-bottom-color: #007bff;
+        }
+
+        .calculator-value {
+            padding: 30px;
+            text-align: center;
+            background: white;
+            margin: 20px;
+            border-radius: 10px;
+        }
+
+        .calculator-amount {
+            font-size: 48px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .add-description {
+            color: #007bff;
+            font-size: 16px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: #ddd;
+            margin: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .keypad-button {
+            background: white;
+            border: none;
+            padding: 20px;
+            font-size: 24px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .keypad-button:hover {
+            background: #f0f0f0;
+        }
+
+        .keypad-button.special {
+            background: #f8f9fa;
+            color: #007bff;
+        }
+
+        .keypad-button:disabled {
+            background: #e9ecef !important;
+            color: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+        }
+
+        .keypad.disabled .keypad-button {
+            pointer-events: none;
+            background: #e9ecef !important;
+            color: #6c757d !important;
+            cursor: not-allowed !important;
+            opacity: 0.6;
+        }
+
+        .calculator-value.disabled {
+            opacity: 0.6;
+        }
+
+        .calculator-value.disabled .calculator-amount {
+            color: #aaa !important;
+        }
+
+        .cobrar-button {
+            background: #ccc;
+            color: #666;
+            margin: 20px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .cobrar-button.active {
+            background: #007bff;
+            color: white;
+        }
+
+        /* Pantalla Produtos */
+        .produtos-screen {
+            background: #f8f9fa;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .produtos-header {
+            background: white;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-bar {
+            background: white;
+            margin: 15px;
+            padding: 12px;
+            border-radius: 25px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 16px;
+            color: #666;
+        }
+
+        .category-filters {
+            display: flex;
+            gap: 10px;
+            padding: 0 15px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+        }
+
+        .category-filter {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            white-space: nowrap;
+            font-size: 14px;
+        }
+
+        .category-filter.active {
+            background: #666;
+            color: white;
+        }
+
+        .category-filter:not(.active) {
+            background: white;
+            color: #666;
+            border: 1px solid #ddd;
+        }
+
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 0 15px;
+            margin-bottom: 80px;
+        }
+
+        .produto-card {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: relative;
+        }
+
+        .produto-card.selected {
+            border: 2px solid #007bff;
+        }
+
+        .produto-badge {
+            position: absolute;
+            top: -8px;
+            left: -8px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .produto-image {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 0 auto 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #999;
+            font-weight: bold;
+        }
+
+        .produto-name {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .produto-price {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .bottom-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 15px;
+            border-top: 1px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+        }
+
+        .cart-icon {
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 18px;
+            position: relative;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: white;
+            color: #007bff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .cobrar-produtos {
+            flex: 1;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .cobrar-produtos.disabled {
+            background: #ccc;
+            color: #666;
+        }
+
+        /* Pantalla More Options */
+        .more-options-screen {
+            background: #f8f9fa;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .more-options-header {
+            background: white;
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .options-content {
+            padding: 20px;
+        }
+
+        .option-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .option-icon {
+            width: 40px;
+            height: 40px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .option-content {
+            flex: 1;
+        }
+
+        .option-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .option-description {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .option-arrow {
+            color: #ccc;
+            font-size: 18px;
+        }
+
+        .logout-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .logout-button {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: none;
+            border: none;
+            padding: 15px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .logout-email {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        /* Flow Diagram */
+        .flow-diagram {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #6c757d;
+        }
+
+        .flow-step.active {
+            border-left-color: #007bff;
+            background: #e3f2fd;
+        }
+
+        .flow-step.success {
+            border-left-color: #28a745;
+            background: #d4edda;
+        }
+
+        .flow-step.warning {
+            border-left-color: #ffc107;
+            background: #fff3cd;
+        }
+
+        .flow-step.error {
+            border-left-color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .remedy-box {
+            background: rgba(255,255,255,0.8);
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #dc3545;
+        }
+
+        .remedy-box h4 {
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+
+        /* Currency and additional styles */
+        .currency {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+            font-size: 14px;
+            pointer-events: none;
+        }
+
+        .control-group {
+            position: relative;
+        }
+
+        /* Calculator specific styles */
+        .calculator-screen {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .calculator-header {
+            display: flex;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .tab-button {
+            flex: 1;
+            padding: 12px;
+            background: none;
+            border: none;
+            font-size: 14px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-button.active {
+            background: white;
+            border-bottom-color: #007bff;
+            font-weight: bold;
+        }
+
+        .calculator-value {
+            padding: 20px;
+            text-align: center;
+            background: white;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .calculator-value.disabled {
+            background: #f5f5f5;
+            opacity: 0.6;
+        }
+
+        .calculator-value.disabled .calculator-amount {
+            color: #999;
+        }
+
+        .calculator-amount {
+            font-size: 48px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .add-description {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .keypad {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: #f0f0f0;
+            flex: 1;
+            padding: 10px;
+        }
+
+        .keypad.disabled {
+            opacity: 0.4;
+            pointer-events: none;
+        }
+
+        .keypad-button {
+            background: white;
+            border: none;
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .keypad-button:hover:not(:disabled) {
+            background: #e0e0e0;
+        }
+
+        .keypad-button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .keypad-button.special {
+            background: #f8f9fa;
+            color: #007bff;
+        }
+
+        .cobrar-button {
+            margin: 10px;
+            padding: 15px;
+            background: #e0e0e0;
+            color: #999;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: not-allowed;
+        }
+
+        .cobrar-button.active {
+            background: #28a745;
+            color: white;
+            cursor: pointer;
+        }
+
+        .cobrar-button:disabled {
+            opacity: 0.6;
+        }
+
+        /* Produtos screen styles */
+        .produtos-screen {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .produtos-header {
+            display: flex;
+            background: #f0f0f0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .search-bar {
+            padding: 15px;
+            background: white;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .category-filters {
+            padding: 10px;
+            background: #f8f9fa;
+            display: flex;
+            gap: 5px;
+            overflow-x: auto;
+        }
+
+        .category-filter {
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .category-filter.active {
+            background: #007bff;
+            color: white;
+            border-color: #007bff;
+        }
+
+        .produtos-grid {
+            flex: 1;
+            padding: 15px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            overflow-y: auto;
+        }
+
+        .produto-card {
+            background: white;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .produto-card:hover {
+            border-color: #007bff;
+        }
+
+        .produto-card.selected {
+            border-color: #28a745;
+            background: #f8fff9;
+        }
+
+        .produto-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #28a745;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .produto-image {
+            width: 60px;
+            height: 60px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .produto-name {
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .produto-price {
+            font-size: 12px;
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .cart-summary {
+            background: #f8f9fa;
+            border-top: 1px solid #ddd;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-summary.active {
+            background: #e8f5e9;
+            border-top-color: #28a745;
+        }
+
+        .cart-info {
+            font-size: 14px;
+        }
+
+        .cart-count {
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        .cart-total {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -54,7 +1056,6 @@
                 <div class="device-screen">
                     <div class="device-status">
                         <div id="deviceStatusIndicator" class="status-indicator active">🟢 ACTIVO</div>
-                        <div id="calculatorDisplay" class="calculator-display">$0.00</div>
                     </div>
                     <div id="deviceContent" class="device-content">
                         <div class="app-screen">
@@ -86,6 +1087,6 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html> 

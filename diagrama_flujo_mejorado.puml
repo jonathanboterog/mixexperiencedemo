@@ -1,5 +1,5 @@
 @startuml
-title Reglas de Negocio - Experiencia Mixta SmartPOS (Final)
+title Reglas de Negocio - Experiencia Mixta SmartPOS (Actualizado v2)
 
 skinparam shadowing false
 skinparam DefaultFontSize 14
@@ -13,20 +13,19 @@ start
 note right: Orden llega desde PDV
 
 if (¿Device en Sleep Mode?) then (sí)
-  if (¿Calculadora en $0\nantes del sleep?) then (sí)
-    #palegreen:✅ **CASO 1: PROCESAR AUTOMÁTICO**\n- Despierta automáticamente\n- Procesa la orden\n- Calculadora estaba en $0;
+  if (¿Calculadora en $0?) then (sí)
+    #palegreen:✅ **CASO 1: PROCESAR AUTOMÁTICO**\n- Sleep mode + Calculadora $0\n- Despierta automáticamente\n- Procesa la orden;
     :Procesar orden automáticamente;
     :Enviar confirmación al PDV;
     stop
   else (no)
-    #yellow:⚠️ **CASO 2: ACCIÓN MANUAL**\n- Sleep mode con calculadora > $0\n- Usuario debe intervenir;
-    :Mostrar notificación\nal usuario;
-    :Usuario debe:\n- Encender device\n- Ir a calculadora\n- Validar que esté en $0;
-    :Procesar orden tras\nvalidación manual;
+    #pink:❌ **CASO 3: ORDEN RECHAZADA (BUSY)**\n- Sleep mode + Calculadora > $0\n- Device ocupado;
+    :Rechazar orden con estado "busy";
+    :Enviar remedy al PDV:\n"Encender device,\nlimpiar calculadora ($0)\ny reenviar orden";
     stop
   endif
 else (no)
-  note left: Device activo
+  note right: Device activo
   if (¿En sección "More Options"?) then (sí)
     #yellow:⚠️ **CASO 2: ACCIÓN MANUAL**\n- More Options activo\n- Requiere validación\n- Sin importar monto/carrito;
     :Mostrar notificación\nal usuario;
