@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartPOS - Demo Interactivo</title>
+    <link rel="stylesheet" href="styles.css?v=1.1">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏪 SmartPOS - Demo Experiencia Mixta</h1>
+            <p>Simulador interactivo del flujo de procesamiento de órdenes</p>
+        </header>
+
+        <div class="demo-container">
+            <!-- Panel de Control -->
+            <div class="control-panel">
+                <h2>🎛️ Configurar Escenario</h2>
+                
+                <div class="control-group">
+                    <label>🔋 Estado del Device:</label>
+                    <select id="deviceState">
+                        <option value="active">🟢 Activo</option>
+                        <option value="sleep">🌙 Sleep Mode</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label>💰 Valor Calculadora:</label>
+                    <input type="number" id="calculatorValue" value="0" min="0" step="0.01" placeholder="0.00">
+                    <span class="currency">USD</span>
+                </div>
+
+                <div class="control-group">
+                    <label>📱 Estado de la App:</label>
+                    <select id="appState">
+                        <option value="home">🏠 Pantalla Principal</option>
+                        <option value="moreOptions">⚙️ More Options</option>
+                        <option value="catalogEmpty">📋 Catálogo Vacío</option>
+                        <option value="catalogWithCart">🛒 Carrito Comenzado</option>
+                        <option value="checkoutFlow">💳 Flujo de Cobro</option>
+                    </select>
+                </div>
+
+                <button id="sendOrder" class="send-order-btn">
+                    📡 Enviar Orden MQTT
+                </button>
+            </div>
+
+            <!-- Simulador Device -->
+            <div class="device-simulator">
+                <h2>📱 SmartPOS Device</h2>
+                <div class="device-screen">
+                    <div class="device-status">
+                        <div id="deviceStatusIndicator" class="status-indicator active">🟢 ACTIVO</div>
+                        <div id="calculatorDisplay" class="calculator-display">$0.00</div>
+                    </div>
+                    <div id="deviceContent" class="device-content">
+                        <div class="app-screen">
+                            <h3 id="currentScreen">🏠 Pantalla Principal</h3>
+                            <div id="screenContent">Listo para recibir órdenes</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de Resultados -->
+            <div class="results-panel">
+                <h2>📊 Resultado del Procesamiento</h2>
+                <div id="resultDisplay" class="result-display">
+                    <div class="waiting-state">
+                        ⏳ Esperando orden MQTT...
+                    </div>
+                </div>
+                <div id="flowDiagram" class="flow-diagram"></div>
+            </div>
+        </div>
+
+        <!-- Log de Actividad -->
+        <div class="activity-log">
+            <h3>📝 Log de Actividad</h3>
+            <div id="logContainer" class="log-container">
+                <div class="log-entry">✅ Demo inicializado correctamente</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

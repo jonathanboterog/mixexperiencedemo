@@ -1,0 +1,73 @@
+@startuml
+title Reglas de Negocio - Experiencia Mixta SmartPOS (Final)
+
+skinparam shadowing false
+skinparam DefaultFontSize 14
+skinparam ArrowFontSize 12
+skinparam BackgroundColor white
+skinparam ActivityBorderColor black
+skinparam ActivityBackgroundColor lightblue
+
+start
+:Recibe notificación MQTT\npara procesar orden;
+note right: Orden llega desde PDV
+
+if (¿Device en Sleep Mode?) then (sí)
+  if (¿Calculadora en $0\nantes del sleep?) then (sí)
+    #palegreen:✅ **CASO 1: PROCESAR AUTOMÁTICO**\n- Despierta automáticamente\n- Procesa la orden\n- Calculadora estaba en $0;
+    :Procesar orden automáticamente;
+    :Enviar confirmación al PDV;
+    stop
+  else (no)
+    #yellow:⚠️ **CASO 2: ACCIÓN MANUAL**\n- Sleep mode con calculadora > $0\n- Usuario debe intervenir;
+    :Mostrar notificación\nal usuario;
+    :Usuario debe:\n- Encender device\n- Ir a calculadora\n- Validar que esté en $0;
+    :Procesar orden tras\nvalidación manual;
+    stop
+  endif
+else (no)
+  note left: Device activo
+  if (¿En sección "More Options"?) then (sí)
+    #yellow:⚠️ **CASO 2: ACCIÓN MANUAL**\n- More Options activo\n- Requiere validación\n- Sin importar monto/carrito;
+    :Mostrar notificación\nal usuario;
+    :Usuario debe validar\ny procesar manualmente;
+    :Procesar orden tras\nvalidación manual;
+    stop
+  else (no)
+    if (¿Catálogo Empty?) then (sí)
+      #yellow:⚠️ **CASO 2: ACCIÓN MANUAL**\n- Catálogo vacío\n- Requiere validación\n- Sin importar monto/carrito;
+      :Mostrar notificación\nal usuario;
+      :Usuario debe validar\ny procesar manualmente;
+      :Procesar orden tras\nvalidación manual;
+      stop
+    else (no)
+      if (¿Catálogo con carrito\ncomenzado?) then (sí)
+        #pink:❌ **CASO 3: ORDEN RECHAZADA (BUSY)**\n- Carrito con productos\n- Device ocupado\n- Sin importar calculadora;
+        :Rechazar orden con estado "busy";
+        :Enviar remedy genérica al PDV:\n"Ir a pantalla de cobro,\ndejar device en $0\ny reenviar orden";
+        stop
+      else (no)
+        if (¿En flujo de cobro?) then (sí)
+          #pink:❌ **CASO 3: ORDEN RECHAZADA (BUSY)**\n- Flujo de cobro activo\n- Device ocupado\n- Sin importar calculadora;
+          :Rechazar orden con estado "busy";
+          :Enviar remedy genérica al PDV:\n"Ir a pantalla de cobro,\ndejar device en $0\ny reenviar orden";
+          stop
+        else (no)
+          if (¿Calculadora > $0?) then (sí)
+            #pink:❌ **CASO 3: ORDEN RECHAZADA (BUSY)**\n- Calculadora > $0\n- Device ocupado;
+            :Rechazar orden con estado "busy";
+            :Enviar remedy genérica al PDV:\n"Ir a pantalla de cobro,\ndejar device en $0\ny reenviar orden";
+            stop
+          else (no)
+            #palegreen:✅ **CASO 1: PROCESAR AUTOMÁTICO**\n- Device activo\n- Calculadora en $0\n- Sin carrito/flujo activo;
+            :Procesar orden automáticamente;
+            :Enviar confirmación al PDV;
+            stop
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+
+@enduml 

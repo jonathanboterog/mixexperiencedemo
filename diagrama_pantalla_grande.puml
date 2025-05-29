@@ -1,0 +1,51 @@
+@startuml
+title SmartPOS - Flujo Final
+
+skinparam shadowing false
+skinparam DefaultFontSize 24
+skinparam ArrowFontSize 20
+skinparam BackgroundColor white
+skinparam TitleFontSize 28
+
+start
+:📱 **ORDEN**;
+
+if (🌙 **SLEEP?**) then (✅)
+  if (💰 **$0?**) then (✅)
+    #90EE90:**🚀 AUTO**;
+    stop
+  else (❌)
+    #FFE4B5:**👤 MANUAL**;
+    stop
+  endif
+else (❌)
+  if (⚙️ **MORE?**) then (✅)
+    #FFE4B5:**👤 MANUAL**;
+    stop
+  else (❌)
+    if (📋 **EMPTY?**) then (✅)
+      #FFE4B5:**👤 MANUAL**;
+      stop
+    else (❌)
+      if (🛒 **CART?**) then (✅)
+        #FFB6C1:**🚫 BUSY**;
+        stop
+      else (❌)
+        if (💳 **PAY?**) then (✅)
+          #FFB6C1:**🚫 BUSY**;
+          stop
+        else (❌)
+          if (💰 **>$0?**) then (✅)
+            #FFB6C1:**🚫 BUSY**;
+            stop
+          else (❌)
+            #90EE90:**🚀 AUTO**;
+            stop
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+
+@enduml 

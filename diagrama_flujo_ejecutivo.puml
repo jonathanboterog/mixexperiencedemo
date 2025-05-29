@@ -1,0 +1,29 @@
+@startuml
+title Flujo de Procesamiento de Órdenes - Vista Ejecutiva
+
+skinparam shadowing false
+skinparam DefaultFontSize 16
+skinparam ArrowFontSize 14
+skinparam BackgroundColor white
+
+start
+:Llega orden MQTT;
+
+if (¿Device disponible\npara procesar?) then (sí)
+  if (¿Calculadora limpia\n($0)?) then (sí)
+    #palegreen:🟢 **AUTOMÁTICO**\nProcesa inmediatamente;
+    :Orden completada;
+    stop
+  else (no)
+    #yellow:🟡 **MANUAL**\nRequiere intervención\ndel usuario;
+    :Usuario valida\ny procesa;
+    stop
+  endif
+else (no)
+  #pink:🔴 **OCUPADO**\nDevice no disponible;
+  :Rechaza orden\n(estado "busy");
+  :Remedy: "Limpiar\ncalculadora y reintentar";
+  stop
+endif
+
+@enduml 

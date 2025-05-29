@@ -1,0 +1,59 @@
+@startuml
+title Procesamiento de Órdenes SmartPOS (Final)
+
+skinparam shadowing false
+skinparam DefaultFontSize 18
+skinparam ArrowFontSize 16
+skinparam BackgroundColor white
+skinparam ActivityFontSize 16
+
+start
+:📱 Llega Orden;
+
+if (🌙 Sleep?) then (✅ Sí)
+  if (💰 $0 antes?) then (✅ Sí)
+    #lightgreen:🚀 **AUTOMÁTICO**;
+    :✓ Procesada;
+    stop
+  else (❌ No)
+    #lightyellow:👤 **MANUAL**;
+    :⚠️ Requiere Usuario;
+    stop
+  endif
+else (❌ No)
+  if (⚙️ More Options?) then (✅ Sí)
+    #lightyellow:👤 **MANUAL**;
+    :⚠️ Requiere Usuario;
+    stop
+  else (❌ No)
+    if (📋 Catálogo Empty?) then (✅ Sí)
+      #lightyellow:👤 **MANUAL**;
+      :⚠️ Requiere Usuario;
+      stop
+    else (❌ No)
+      if (🛒 Carrito?) then (✅ Sí)
+        #lightcoral:🚫 **BUSY**;
+        :❌ Rechazada;
+        stop
+      else (❌ No)
+        if (💳 Flujo Cobro?) then (✅ Sí)
+          #lightcoral:🚫 **BUSY**;
+          :❌ Rechazada;
+          stop
+        else (❌ No)
+          if (💰 > $0?) then (✅ Sí)
+            #lightcoral:🚫 **BUSY**;
+            :❌ Rechazada;
+            stop
+          else (❌ No)
+            #lightgreen:🚀 **AUTOMÁTICO**;
+            :✓ Procesada;
+            stop
+          endif
+        endif
+      endif
+    endif
+  endif
+endif
+
+@enduml 
