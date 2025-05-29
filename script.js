@@ -14,6 +14,7 @@ class SmartPOSDemo {
 
         // Device display elements
         this.deviceStatusIndicator = document.getElementById('deviceStatusIndicator');
+        this.calculatorDisplay = document.getElementById('calculatorDisplay');
         this.currentScreen = document.getElementById('currentScreen');
         this.screenContent = document.getElementById('screenContent');
 
@@ -31,8 +32,7 @@ class SmartPOSDemo {
         });
 
         this.calculatorValueInput.addEventListener('input', () => {
-            // Actualizar pantalla calculadora en tiempo real si estamos en home
-            this.updateAppState();
+            this.updateCalculatorDisplay();
         });
 
         this.appStateSelect.addEventListener('change', () => {
@@ -52,22 +52,25 @@ class SmartPOSDemo {
         if (deviceState === 'sleep') {
             this.deviceStatusIndicator.className = 'status-indicator sleep';
             this.deviceStatusIndicator.textContent = '🌙 SLEEP MODE';
-            
-            // CAMBIO 2: Inhabilitar input de calculadora en sleep mode
-            this.calculatorValueInput.disabled = true;
-            this.calculatorValueInput.style.backgroundColor = '#f5f5f5';
-            this.calculatorValueInput.style.color = '#999';
         } else {
             this.deviceStatusIndicator.className = 'status-indicator active';
             this.deviceStatusIndicator.textContent = '🟢 ACTIVO';
-            
-            // Habilitar input de calculadora cuando no está en sleep mode
-            this.calculatorValueInput.disabled = false;
-            this.calculatorValueInput.style.backgroundColor = '';
-            this.calculatorValueInput.style.color = '';
         }
 
+        this.updateCalculatorDisplay();
         this.updateAppState();
+    }
+
+    updateCalculatorDisplay() {
+        const calculatorValue = parseFloat(this.calculatorValueInput.value) || 0;
+        this.calculatorDisplay.textContent = `$${calculatorValue.toFixed(2)}`;
+        
+        // Change color based on value
+        if (calculatorValue === 0) {
+            this.calculatorDisplay.style.color = '#00ff00';
+        } else {
+            this.calculatorDisplay.style.color = '#ff6600';
+        }
     }
 
     updateAppState() {
@@ -102,74 +105,33 @@ class SmartPOSDemo {
 
     renderCalculatorScreen(value) {
         this.currentScreen.textContent = '';
-        
-        // CAMBIO 1: Obtener el valor actualizado del input
-        const currentValue = parseFloat(this.calculatorValueInput.value) || 0;
-        const deviceState = this.deviceStateSelect.value;
-        const isDisabled = deviceState === 'sleep';
-        
         this.screenContent.innerHTML = `
             <div class="calculator-screen">
                 <div class="calculator-header">
                     <button class="tab-button active">Valor</button>
                     <button class="tab-button">Seus produtos</button>
                 </div>
-                <div class="calculator-value ${isDisabled ? 'disabled' : ''}">
-                    <div class="calculator-amount">R$ ${currentValue.toFixed(2).replace('.', ',')}</div>
+                <div class="calculator-value">
+                    <div class="calculator-amount">R$ ${value.toFixed(2).replace('.', ',')}</div>
                     <div class="add-description">Adicionar descrição</div>
                 </div>
-                <div class="keypad ${isDisabled ? 'disabled' : ''}">
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('1')" ${isDisabled ? 'disabled' : ''}>1</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('2')" ${isDisabled ? 'disabled' : ''}>2</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('3')" ${isDisabled ? 'disabled' : ''}>3</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('4')" ${isDisabled ? 'disabled' : ''}>4</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('5')" ${isDisabled ? 'disabled' : ''}>5</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('6')" ${isDisabled ? 'disabled' : ''}>6</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('7')" ${isDisabled ? 'disabled' : ''}>7</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('8')" ${isDisabled ? 'disabled' : ''}>8</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('9')" ${isDisabled ? 'disabled' : ''}>9</button>
-                    <button class="keypad-button special" onclick="smartPosDemo.handleKeypadInput('backspace')" ${isDisabled ? 'disabled' : ''}>⌫</button>
-                    <button class="keypad-button" onclick="smartPosDemo.handleKeypadInput('0')" ${isDisabled ? 'disabled' : ''}>0</button>
-                    <button class="keypad-button special" onclick="smartPosDemo.handleKeypadInput('+')" ${isDisabled ? 'disabled' : ''}>+</button>
+                <div class="keypad">
+                    <button class="keypad-button">1</button>
+                    <button class="keypad-button">2</button>
+                    <button class="keypad-button">3</button>
+                    <button class="keypad-button">4</button>
+                    <button class="keypad-button">5</button>
+                    <button class="keypad-button">6</button>
+                    <button class="keypad-button">7</button>
+                    <button class="keypad-button">8</button>
+                    <button class="keypad-button">9</button>
+                    <button class="keypad-button special">⌫</button>
+                    <button class="keypad-button">0</button>
+                    <button class="keypad-button special">+</button>
                 </div>
-                <button class="cobrar-button ${currentValue > 0 && !isDisabled ? 'active' : ''}" ${isDisabled ? 'disabled' : ''}>Cobrar</button>
+                <button class="cobrar-button ${value > 0 ? 'active' : ''}">Cobrar</button>
             </div>
         `;
-    }
-
-    // CAMBIO 1: Nueva función para manejar input del keypad
-    handleKeypadInput(input) {
-        const deviceState = this.deviceStateSelect.value;
-        
-        // No permitir input si está en sleep mode
-        if (deviceState === 'sleep') {
-            return;
-        }
-        
-        let currentValue = this.calculatorValueInput.value || '0';
-        
-        if (input === 'backspace') {
-            if (currentValue.length > 1) {
-                currentValue = currentValue.slice(0, -1);
-            } else {
-                currentValue = '0';
-            }
-        } else if (input === '+') {
-            // Implementar lógica de suma si es necesario
-            return;
-        } else {
-            if (currentValue === '0') {
-                currentValue = input;
-            } else {
-                currentValue += input;
-            }
-        }
-        
-        // Actualizar el input
-        this.calculatorValueInput.value = currentValue;
-        
-        // Actualizar la pantalla usando updateAppState
-        this.updateAppState();
     }
 
     renderProdutosScreen(hasCart) {
@@ -321,14 +283,26 @@ class SmartPOSDemo {
     }
 
     processOrder() {
-        this.addLogEntry('📡 Enviando orden MQTT...', 'info');
+        this.addLogEntry('📡 Recibiendo notificación MQTT para procesar orden...', 'info');
         
         // Simulate MQTT delay
         setTimeout(() => {
             const result = this.evaluateOrderProcessing();
             this.displayResult(result);
             this.createFlowDiagram(result);
-            this.addLogEntry(`✅ Orden procesada: ${result.type}`, result.type === 'SUCCESS' ? 'success' : result.type === 'MANUAL' ? 'warning' : 'error');
+            
+            // Log específico según el tipo de resultado
+            switch (result.type) {
+                case 'SUCCESS':
+                    this.addLogEntry('✅ Orden procesada automáticamente - Confirmación enviada al PDV', 'success');
+                    break;
+                case 'MANUAL':
+                    this.addLogEntry('⚠️ Notificación mostrada al usuario - Requiere acción manual', 'warning');
+                    break;
+                case 'BUSY':
+                    this.addLogEntry('🚫 Orden rechazada con estado "busy" - Remedy enviado al PDV', 'error');
+                    break;
+            }
         }, 1000);
 
         // Show loading state
@@ -336,7 +310,7 @@ class SmartPOSDemo {
             <div class="waiting-state">
                 <div class="result-icon">⏳</div>
                 <div class="result-title">Procesando orden MQTT...</div>
-                <div class="result-description">Evaluando estado del device...</div>
+                <div class="result-description">Evaluando reglas de negocio v4...</div>
             </div>
         `;
     }
@@ -346,142 +320,92 @@ class SmartPOSDemo {
         const calculatorValue = parseFloat(this.calculatorValueInput.value) || 0;
         const appState = this.appStateSelect.value;
 
-        // Implement business rules from the final corrected diagrams
-        if (deviceState === 'sleep') {
-            // CAMBIO 3: Si está en sleep mode y no está en calculadora (home), siempre va a caso 2
-            if (appState !== 'home') {
-                return {
-                    type: 'MANUAL',
-                    title: 'CASO 2: ACCIÓN MANUAL',
-                    description: 'Device en sleep mode y no está en pantalla calculadora. Requiere acción manual sin importar el monto.',
-                    icon: '⚠️',
-                    steps: [
-                        'Device detecta orden MQTT',
-                        'Verifica que está en sleep mode',
-                        'Detecta que no está en pantalla calculadora',
-                        'Requiere acción manual del usuario'
-                    ]
-                };
-            }
-            
-            if (calculatorValue === 0) {
-                return {
-                    type: 'SUCCESS',
-                    title: 'CASO 1: PROCESAR AUTOMÁTICO',
-                    description: 'Device en sleep mode pero calculadora está en $0. Se despierta automáticamente y procesa la orden.',
-                    icon: '🚀',
-                    steps: [
-                        'Device detecta orden MQTT',
-                        'Verifica calculadora está en $0',
-                        'Despierta automáticamente',
-                        'Procesa orden inmediatamente'
-                    ]
-                };
-            } else {
-                // NUEVO CAMBIO: Sleep mode con monto > 0 va a BUSY (Caso 3)
-                return {
-                    type: 'BUSY',
-                    title: 'CASO 3: ORDEN RECHAZADA (BUSY)',
-                    description: 'Device en sleep mode con calculadora > $0. Device ocupado.',
-                    icon: '🚫',
-                    remedy: 'El usuario debe encender el device, limpiar la calculadora ($0) y volver a enviar la orden.',
-                    steps: [
-                        'Device detecta orden MQTT',
-                        'Verifica que está en sleep mode',
-                        'Detecta calculadora > $0 (valor: $' + calculatorValue.toFixed(2) + ')',
-                        'Device marcado como ocupado - rechaza orden'
-                    ]
-                };
-            }
-        } else {
-            // Device activo - Verificar contextos especiales primero
-            if (appState === 'moreOptions') {
-                return {
-                    type: 'MANUAL',
-                    title: 'CASO 2: ACCIÓN MANUAL',
-                    description: 'Usuario en "More Options". Requiere validación manual sin importar el monto de la calculadora (incluso $0).',
-                    icon: '⚠️',
-                    steps: [
-                        'Device recibe orden MQTT',
-                        'Detecta usuario en sección "More Options"',
-                        'Monto de calculadora: $' + calculatorValue.toFixed(2),
-                        'Requiere validación manual por contexto especial'
-                    ]
-                };
-            } else if (appState === 'catalogEmpty') {
-                return {
-                    type: 'MANUAL',
-                    title: 'CASO 2: ACCIÓN MANUAL',
-                    description: 'Catálogo vacío. Requiere validación manual sin importar el monto de la calculadora.',
-                    icon: '⚠️',
-                    steps: [
-                        'Device recibe orden MQTT',
-                        'Detecta catálogo vacío',
-                        'Requiere validación manual por contexto',
-                        'Usuario debe confirmar para procesar'
-                    ]
-                };
-            } else if (appState === 'catalogWithCart') {
-                // Carrito con productos siempre va a BUSY, sin importar calculadora
-                return {
-                    type: 'BUSY',
-                    title: 'CASO 3: ORDEN RECHAZADA (BUSY)',
-                    description: 'Device ocupado con carrito comenzado. Sin importar el valor de la calculadora.',
-                    icon: '🚫',
-                    remedy: 'El usuario debe ir a la pantalla de cobro, dejar el device en $0 y volver a enviar la orden.',
-                    steps: [
-                        'Device recibe orden MQTT',
-                        'Detecta catálogo con carrito comenzado',
-                        'Device marcado como ocupado',
-                        'Rechaza orden con estado "busy"'
-                    ]
-                };
-            } else if (appState === 'checkoutFlow') {
-                // Flujo de cobro activo siempre va a BUSY, sin importar calculadora
-                return {
-                    type: 'BUSY',
-                    title: 'CASO 3: ORDEN RECHAZADA (BUSY)',
-                    description: 'Device ocupado con flujo de cobro activo. Sin importar el valor de la calculadora.',
-                    icon: '🚫',
-                    remedy: 'El usuario debe ir a la pantalla de cobro, dejar el device en $0 y volver a enviar la orden.',
-                    steps: [
-                        'Device recibe orden MQTT',
-                        'Detecta flujo de cobro activo',
-                        'Device marcado como ocupado',
-                        'Rechaza orden con estado "busy"'
-                    ]
-                };
-            } else if (calculatorValue > 0) {
-                // Calculadora > $0 siempre va a BUSY (excepto contextos especiales ya manejados)
-                return {
-                    type: 'BUSY',
-                    title: 'CASO 3: ORDEN RECHAZADA (BUSY)',
-                    description: 'Calculadora > $0. Device ocupado.',
-                    icon: '🚫',
-                    remedy: 'El usuario debe ir a la pantalla de cobro, dejar el device en $0 y volver a enviar la orden.',
-                    steps: [
-                        'Device recibe orden MQTT',
-                        'Detecta calculadora > $0',
-                        'Device marcado como ocupado',
-                        'Rechaza orden con estado "busy"'
-                    ]
-                };
-            } else {
-                // Calculadora en $0, sin carrito, contexto válido - Automático
-                return {
-                    type: 'SUCCESS',
-                    title: 'CASO 1: PROCESAR AUTOMÁTICO',
-                    description: 'Device activo con calculadora en $0 y sin carrito comenzado. Procesa automáticamente.',
-                    icon: '🚀',
-                    steps: [
-                        'Device recibe orden MQTT',
-                        'Verifica calculadora en $0',
-                        'Sin carrito comenzado',
-                        'Procesa orden inmediatamente'
-                    ]
-                };
-            }
+        // Debug logging para diagnosticar el problema
+        console.log('🔍 DEBUG - Estados actuales:', {
+            deviceState,
+            calculatorValue,
+            appState
+        });
+
+        // Debug adicional: verificar el dropdown actual
+        const selectedOption = this.appStateSelect.options[this.appStateSelect.selectedIndex];
+        console.log('🔍 DEBUG - Dropdown actual:', {
+            selectedIndex: this.appStateSelect.selectedIndex,
+            selectedValue: this.appStateSelect.value,
+            selectedText: selectedOption ? selectedOption.text : 'undefined',
+            allOptions: Array.from(this.appStateSelect.options).map(opt => ({ value: opt.value, text: opt.text }))
+        });
+
+        // Implementar reglas de negocio según diagrama v4 simplificado
+        
+        // Verificar si carrito tiene productos
+        if (appState === 'catalogWithCart') {
+            console.log('📝 DEBUG - Detectado: catalogWithCart → CASO 3 BUSY');
+            return {
+                type: 'BUSY',
+                title: '❌ CASO 3: ORDEN RECHAZADA (BUSY)',
+                description: 'Carrito con productos - Device ocupado',
+                icon: '🚫',
+                remedy: 'Finalizar compra actual y reenviar orden',
+                steps: [
+                    'Recibe notificación MQTT para procesar orden',
+                    'Detecta carrito con productos',
+                    'Device ocupado - rechaza orden',
+                    'Envía remedy al PDV: "Finalizar compra actual y reenviar orden"'
+                ]
+            };
         }
+
+        // Verificar si está en flujo de cobro
+        if (appState === 'checkoutFlow') {
+            console.log('📝 DEBUG - Detectado: checkoutFlow → CASO 3 BUSY');
+            return {
+                type: 'BUSY',
+                title: '❌ CASO 3: ORDEN RECHAZADA (BUSY)',
+                description: 'Flujo de cobro activo - Device ocupado',
+                icon: '🚫',
+                remedy: 'Finalizar cobro actual y reenviar orden',
+                steps: [
+                    'Recibe notificación MQTT para procesar orden',
+                    'Detecta flujo de cobro activo',
+                    'Device ocupado - rechaza orden',
+                    'Envía remedy al PDV: "Finalizar cobro actual y reenviar orden"'
+                ]
+            };
+        }
+
+        // Verificar si está en pantalla Home (incluye calculadora y catálogo vacío)
+        if (appState === 'home' || appState === 'catalogEmpty') {
+            console.log('📝 DEBUG - Detectado: home/catalogEmpty → CASO 1 SUCCESS');
+            return {
+                type: 'SUCCESS',
+                title: '✅ CASO 1: PROCESAR AUTOMÁTICO',
+                description: 'Home sin carrito - Procesa automáticamente',
+                icon: '🚀',
+                steps: [
+                    'Recibe notificación MQTT para procesar orden',
+                    'Verifica está en pantalla Home',
+                    'No hay carrito ni flujo de cobro activo',
+                    'Procesa orden automáticamente y envía confirmación al PDV'
+                ]
+            };
+        }
+
+        // Cualquier otra pantalla (More Options, etc.)
+        console.log('📝 DEBUG - Detectado: otra pantalla → CASO 2 MANUAL. appState actual:', appState);
+        return {
+            type: 'MANUAL',
+            title: '⚠️ CASO 2: ACCIÓN MANUAL',
+            description: 'More Options u otra pantalla - Debe regresar a Home',
+            icon: '⚠️',
+            remedy: 'Regresar a pantalla Home y validar procesamiento',
+            steps: [
+                'Recibe notificación MQTT para procesar orden',
+                'Detecta está en More Options u otra pantalla',
+                'Muestra notificación al usuario',
+                'Usuario debe regresar a Home y validar procesamiento manual'
+            ]
+        };
     }
 
     displayResult(result) {
@@ -553,5 +477,5 @@ class SmartPOSDemo {
 
 // Initialize the demo when the page loads
 document.addEventListener('DOMContentLoaded', () => {
-    window.smartPosDemo = new SmartPOSDemo();
+    new SmartPOSDemo();
 }); 
